@@ -3,9 +3,11 @@ import Navbar from "../components/external/navbar";
 
 function ExternalLayout() {
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <Outlet />
+      <div className="flex-grow">
+        <Outlet />
+      </div>
     </div>
   );
 }
