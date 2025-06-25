@@ -1,6 +1,8 @@
 function Home() {
   return (
-    <div>Home</div>
+    <div className="flex flex-col justify-center">
+        Home
+    </div>
   )
 }
 
