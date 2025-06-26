@@ -23,7 +23,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         USE_MILESTONE_TITLE: "true"
-        OUTPUT_FOLDER: "."
+        OUTPUT_FOLDER: "release-notes"
     
     - name: Debug - list files
       run: ls -la
@@ -32,8 +32,8 @@ jobs:
       run: |
         git config --global user.email "actions@github.com"
         git config --global user.name "GitHub Actions"
-        git add Rel_*.md || echo "No release notes to add"
-        git commit -m "📝 Add release notes for closed milestone"
+        git add release-notes/Rel_*.md || echo "No release notes to add"
+        git commit -m "Add release notes for closed milestone"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
