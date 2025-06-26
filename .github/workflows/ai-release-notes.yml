@@ -15,7 +15,7 @@ jobs:
 
       - name: Summarize Commits with AI
         id: ai_summary
-        uses: dirtycajunrice/ai-commit-summary@v1
+        uses: dirtycajunrice/ai-commit-summary@main
         with:
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           from: ${{ github.event.before }}
