@@ -1,23 +1,10 @@
 changelog:
+  add-sections: true
   sections:
-    - title: "🚀 Features"
-      labels:
-        - feature
-        - enhancement
-        - new
-    - title: "🐛 Bug Fixes"
-      labels:
-        - bug
-        - fix
-    - title: "🧰 Maintenance"
-      labels:
-        - chore
-        - refactor
-        - docs
-        - test
-    - title: "📦 Dependencies"
-      labels:
-        - dependencies
+  - title: "Enhancements"
+    labels: ["new"]
+  - title: "Bugs"
+    labels: ["fix"]
 
   contributors:
     title: "Contributors"
