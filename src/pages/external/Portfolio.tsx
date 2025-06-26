@@ -7,7 +7,7 @@ type Project = {
 const Portfolio = () => {
   const [portfolio, updatePortfolio] = useState<Project[]>([])
   return (
-    <div className="flex flex-col items-center flex-grow">
+    <div className="flex flex-col items-center flex-grow fade-in">
       <h1 className="text-3xl font-bold md:text-4xl">My projects:</h1>
       {portfolio.length > 0
         ? portfolio.map(project => (

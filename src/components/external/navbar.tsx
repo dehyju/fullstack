@@ -4,6 +4,7 @@ import { FaGithub } from "react-icons/fa6";
 import { FaLinkedin } from "react-icons/fa";
 
 import logo from "../../assets/logo.svg"
+import { MdEmail } from 'react-icons/md';
 
 
 const Navbar = () => {
@@ -18,6 +19,7 @@ const Navbar = () => {
         <Link to="/blog">Blog</Link>
         <a href='https://www.linkedin.com/in/stephen-t-j-leong/' target='_blank'><FaLinkedin /></a>
         <a href='https://github.com/dehyju' target='_blank'><FaGithub /></a>
+        <a href='mailto:stephen.t.j.leong@gmail.com'><MdEmail /></a>
       </div>
       <Link className="text-xl mx-3" to="/login">Login</Link>
     </nav>
