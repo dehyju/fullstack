@@ -6,28 +6,24 @@ on:
       - 'v*'
 
 jobs:
-  summarize-and-release:
+  ai-release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Generate AI Summary
-        id: summarize
-        uses: gentrace/git-summarizer@v1
+      - name: Summarize Commits with AI
+        id: ai_summary
+        uses: dirtycajunrice/ai-commit-summary@v3
         with:
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-          days_to_analyze: 7
-          model: gpt-3.5-turbo
+          from: ${{ github.event.before }}
+          to: ${{ github.sha }}
 
-      # Optional — just for debugging
-      - name: Print summary to log
-        run: echo "${{ steps.summarize.outputs.result }}"
-
-      - name: Create GitHub Release with AI Notes
+      - name: Create Release with AI Notes
         uses: softprops/action-gh-release@v1
         with:
-          body: ${{ steps.summarize.outputs.result }}
+          body: ${{ steps.ai_summary.outputs.result }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
