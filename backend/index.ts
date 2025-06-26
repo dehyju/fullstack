@@ -1,16 +1,19 @@
-import express, { Express, Request, Response , Application } from 'express';
-import dotenv from 'dotenv';
+import express, { Application } from 'express';;
+import { ApolloServer } from 'apollo-server-express';
+import { typeDefs, resolvers } from './schema';
 
-//For env File 
-dotenv.config();
+async function startServer() {
+  const app: Application = express();
 
-const app: Application = express();
-const port = process.env.PORT || 8000;
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to Express & TypeScript Server');
-});
+server.applyMiddleware({ app: app as any });
 
-app.listen(port, () => {
-  console.log(`Server is Fire at https://localhost:${port}`);
-});
+  const port = process.env.PORT || 4000;
+  app.listen(port, () => {
+    console.log(`Server ready at http://localhost:${port}${server.graphqlPath}`);
+  });
+}
+
+startServer();
