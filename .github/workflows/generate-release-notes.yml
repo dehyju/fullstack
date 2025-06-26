@@ -17,13 +17,13 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@master
-      
+
     - name: Create Release Notes
       uses: docker://decathlon/release-notes-generator-action:2.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         USE_MILESTONE_TITLE: "true"
-        OUTPUT_FOLDER: temp_release_notes
+        OUTPUT_FOLDER: "."
 
     - name: Commit release notes
       run: |
