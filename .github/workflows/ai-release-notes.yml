@@ -1,0 +1,30 @@
+name: AI Release Notes
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  summarize-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate AI Summary
+        uses: gentrace/git-summarizer@v1
+        id: summarizer
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          summary_mode: release
+          temperature: 0.5
+          max_tokens: 600
+
+      - name: Create GitHub Release with AI Notes
+        uses: softprops/action-gh-release@v1
+        with:
+          body: ${{ steps.summarizer.outputs.summary }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
