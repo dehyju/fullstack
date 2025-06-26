@@ -1,10 +1,3 @@
-name: AI Release Notes
-
-on:
-  push:
-    tags:
-      - 'v*'
-
 jobs:
   ai-release:
     runs-on: ubuntu-latest
@@ -16,10 +9,12 @@ jobs:
       - name: Summarize Commits with AI
         id: ai_summary
         uses: dirtycajunrice/ai-commit-summary@main
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         with:
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-          from: ${{ github.event.before }}
-          to: ${{ github.sha }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ignored: 'docs,tests' # optional, comma-separated list of ignored files/folders
 
       - name: Create Release with AI Notes
         uses: softprops/action-gh-release@v1
