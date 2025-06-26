@@ -25,16 +25,17 @@ jobs:
         id: commits
         run: |
           if [ -z "$PREV_TAG" ]; then
-            # No previous tag, get all commits
             git log --pretty=format:"- %s (%h)" > commits.txt
           else
             git log $PREV_TAG..HEAD --pretty=format:"- %s (%h)" > commits.txt
           fi
           echo "Commits:"
           cat commits.txt
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          cat commits.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "commits<<EOF"
+            cat commits.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Get issues closed by commits
         id: issues
