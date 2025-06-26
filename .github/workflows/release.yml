@@ -1,4 +1,4 @@
-name: Simple Release Notes
+name: Release Notes Generator
 
 on:
   push:
@@ -6,76 +6,50 @@ on:
       - 'v*'
 
 jobs:
-  create-release-notes:
+  release:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Get previous tag
-        id: prev_tag
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important to get all tags and history
+
+      - name: Get Latest and Previous Tags
+        id: tags
         run: |
-          git fetch --tags
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
+          CURRENT_TAG=$(git describe --tags --abbrev=0)
+          PREV_TAG=$(git describe --tags --abbrev=0 "$CURRENT_TAG^" 2>/dev/null || echo "")
+
+          echo "Current tag: $CURRENT_TAG"
           echo "Previous tag: $PREV_TAG"
 
-      - name: Get commits since previous tag
-        id: commits
+          echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+
+      - name: Generate Commit List
+        id: changelog
         run: |
-          if [ -z "$PREV_TAG" ]; then
+          if [ -z "${{ steps.tags.outputs.prev_tag }}" ]; then
             git log --pretty=format:"- %s (%h)" > commits.txt
           else
-            git log $PREV_TAG..HEAD --pretty=format:"- %s (%h)" > commits.txt
+            git log ${{ steps.tags.outputs.prev_tag }}..${{ steps.tags.outputs.current_tag }} --pretty=format:"- %s (%h)" > commits.txt
           fi
+
           echo "Commits:"
           cat commits.txt
+
           {
             echo "commits<<EOF"
             cat commits.txt
             echo "EOF"
           } >> $GITHUB_OUTPUT
 
-      - name: Get issues closed by commits
-        id: issues
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Extract issue numbers from commit messages (looking for #123 style)
-          ISSUE_NUMBERS=$(git log $PREV_TAG..HEAD --grep='#' --pretty=format:%s | grep -oE '#[0-9]+' | tr -d '#' | sort -u)
-          echo "Found issues referenced in commits: $ISSUE_NUMBERS"
-
-          if [ -z "$ISSUE_NUMBERS" ]; then
-            echo "issues<<EOF" >> $GITHUB_OUTPUT
-            echo "No issues referenced in commits." >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # Fetch issue titles using GitHub API
-          ISSUE_LIST=""
-          for issue in $ISSUE_NUMBERS; do
-            TITLE=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/$issue | jq -r .title)
-            ISSUE_LIST+="- #$issue $TITLE\n"
-          done
-
-          echo -e "issues<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$ISSUE_LIST" >> $GITHUB_OUTPUT
-          echo -e "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          body: |
-            ## Commits
-            ${{ steps.commits.outputs.commits }}
-
-            ## Closed Issues
-            ${{ steps.issues.outputs.issues }}
+          tag_name: ${{ steps.tags.outputs.current_tag }}
+          name: Release ${{ steps.tags.outputs.current_tag }}
+          body: ${{ steps.changelog.outputs.commits }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
