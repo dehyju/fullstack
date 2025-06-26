@@ -1,10 +1,6 @@
 changelog:
-  add-sections: true
   sections:
   - title: "Enhancements"
     labels: ["new"]
   - title: "Bugs"
     labels: ["fix"]
-
-  contributors:
-    title: "Contributors"
