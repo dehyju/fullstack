@@ -3,29 +3,32 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
 import mongoose from 'mongoose';
-
 import { typeDefs, resolvers } from './schema';
 
-async function startApolloServer() {
-  // Connect to local MongoDB
-  await mongoose.connect('mongodb://localhost:27017/myapp', {
-    // useNewUrlParser: true, // (no longer needed in Mongoose 6+)
-    // useUnifiedTopology: true,
-  });
+async function startServer() {
+  // Connect to MongoDB
+  await mongoose.connect('mongodb://localhost:27017/myapp');
   console.log('🗄️ Connected to MongoDB');
 
   const app = express();
 
+  // REST endpoint
+  app.get('/api', (_req, res) => {
+    res.send('Hello, REST API!');
+  });
+
+  // GraphQL endpoint
   const server = new ApolloServer({ typeDefs, resolvers });
   await server.start();
-
   app.use('/graphql', cors(), express.json(), expressMiddleware(server));
 
-  app.listen({ port: 4000 }, () => {
-    console.log('🚀 Server ready at http://localhost:4000/graphql');
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, () => {
+    console.log(`🚀 GraphQL ready at http://localhost:${PORT}/graphql`);
+    console.log(`🌐 REST ready at http://localhost:${PORT}/api`);
   });
 }
 
-startApolloServer().catch((error) => {
-  console.error('Error starting server:', error);
+startServer().catch((err) => {
+  console.error('Error starting server:', err);
 });
